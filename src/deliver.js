@@ -38,7 +38,7 @@ function markdownToHtml(md) {
  *   GMAIL_APP_PASS — 16-char app password (not your main password)
  *   GMAIL_TO       — recipient email (can be same as GMAIL_USER)
  */
-export async function sendViaGmail(report, subject) {
+export async function sendViaGmail(report, subject, { html } = {}) {
   const { GMAIL_USER, GMAIL_APP_PASS, GMAIL_TO } = process.env;
   if (!GMAIL_USER || !GMAIL_APP_PASS) {
     console.warn("[deliver] Gmail not configured — skipping. Set GMAIL_USER and GMAIL_APP_PASS.");
@@ -58,7 +58,7 @@ export async function sendViaGmail(report, subject) {
     to: GMAIL_TO || GMAIL_USER,
     subject: subject || `Trend Scout Daily — ${new Date().toISOString().slice(0, 10)}`,
     text: report,
-    html: markdownToHtml(report),
+    html: html || markdownToHtml(report),
   });
 
   console.log(`[deliver] Gmail sent to ${GMAIL_TO || GMAIL_USER}`);
@@ -115,9 +115,9 @@ export async function sendViaWhatsApp(report, subject) {
 /**
  * Deliver report through all configured channels.
  */
-export async function deliver(report, subject) {
+export async function deliver(report, subject, { html } = {}) {
   const results = await Promise.allSettled([
-    sendViaGmail(report, subject),
+    sendViaGmail(report, subject, { html }),
     sendViaWhatsApp(report, subject),
   ]);
 
