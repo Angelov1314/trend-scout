@@ -4,17 +4,19 @@ Daily AI-powered reports on trending GitHub projects and AI agent innovations, d
 
 ## Features
 
-- **Daily Report** — Top new GitHub repos, AI agent innovations, and notable releases from the past week
-- **On-Demand Search** — Search GitHub for templates/projects and get a concise ranked report
+- **Daily Report** — Top new GitHub repos, AI agent innovations, and notable releases
+- **Daily+ Report** — Enhanced daily with social media AI buzz (via Tavily)
+- **On-Demand Search** — GitHub-only search with ranked results
+- **Deep Search** — Multi-source: GitHub + Tavily + X/Twitter + LinkedIn + YouTube + HackerNews
 - **Multi-Channel Delivery** — Gmail (HTML email) and WhatsApp (via Twilio)
-- **GitHub Actions** — Automated daily cron, or trigger manually from the Actions tab
+- **GitHub Actions** — Automated daily cron, or trigger manually with custom queries
 - **Claude Code Skill** — Use as `/trend` directly in Claude Code
 
 ## Quick Start
 
 ```bash
 # 1. Clone
-git clone https://github.com/YOUR_USER/trend-scout.git
+git clone https://github.com/Angelov1314/trend-scout.git
 cd trend-scout
 
 # 2. Install
@@ -26,8 +28,14 @@ npm run setup
 # 4. Generate a report (prints to stdout)
 npm run report
 
-# 5. Search for templates
+# 5. GitHub-only search
 node src/index.js --mode=search --query="flutter expense tracker"
+
+# 6. Deep multi-source search (requires TAVILY_API_KEY)
+node src/index.js --mode=deep --query="AI agent framework"
+
+# 7. Enhanced daily with social buzz
+node src/index.js --mode=daily+
 ```
 
 ## Delivery Setup
@@ -59,7 +67,7 @@ node src/index.js --mode=search --query="flutter expense tracker"
 
 1. Push this repo to GitHub
 2. Go to Settings > Secrets and variables > Actions
-3. Add secrets: `GMAIL_USER`, `GMAIL_APP_PASS`, `GMAIL_TO` (and Twilio secrets if using WhatsApp)
+3. Add secrets: `GMAIL_USER`, `GMAIL_APP_PASS`, `GMAIL_TO`, `TAVILY_API_KEY` (and Twilio secrets if using WhatsApp)
 4. The workflow runs daily at 8:00 AM UTC. Adjust the cron in `.github/workflows/daily-report.yml`
 5. You can also trigger manually from the Actions tab with a custom search query
 
@@ -93,7 +101,8 @@ cp -r skill/ ~/.claude/skills/trend-scout/
 
 Then use:
 - `/trend` — Generate daily report
-- `/trend search "query"` — Search and report
+- `/trend search "query"` — GitHub search
+- `/trend deep "query"` — Multi-source deep search (Tavily + X + YouTube + HN)
 
 ## License
 
