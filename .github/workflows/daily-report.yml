@@ -1,0 +1,63 @@
+name: Daily Trend Report
+
+on:
+  schedule:
+    # Run at 8:00 AM UTC daily (adjust to your timezone)
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Report mode"
+        required: false
+        default: "daily+"
+        type: choice
+        options:
+          - daily
+          - daily+
+          - search
+          - deep
+      query:
+        description: "Search query (for search/deep modes)"
+        required: false
+        type: string
+      sources:
+        description: "Sources for deep mode (comma-separated: tavily,x,linkedin,youtube,hackernews)"
+        required: false
+        default: "tavily,x,youtube,hackernews"
+        type: string
+
+jobs:
+  generate-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate and deliver report
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASS: ${{ secrets.GMAIL_APP_PASS }}
+          GMAIL_TO: ${{ secrets.GMAIL_TO }}
+          TWILIO_SID: ${{ secrets.TWILIO_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+          TWILIO_WHATSAPP_FROM: ${{ secrets.TWILIO_WHATSAPP_FROM }}
+          WHATSAPP_TO: ${{ secrets.WHATSAPP_TO }}
+        run: |
+          MODE="${{ github.event.inputs.mode || 'daily+' }}"
+          QUERY="${{ github.event.inputs.query }}"
+          SOURCES="${{ github.event.inputs.sources }}"
+
+          ARGS="--mode=$MODE"
+          [ -n "$QUERY" ] && ARGS="$ARGS --query=\"$QUERY\""
+          [ -n "$SOURCES" ] && ARGS="$ARGS --sources=$SOURCES"
+
+          eval node src/index.js $ARGS

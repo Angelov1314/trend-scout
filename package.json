@@ -1,0 +1,24 @@
+{
+  "name": "trend-scout",
+  "version": "1.0.0",
+  "description": "Daily AI-powered report on trending GitHub projects, AI agent innovations, and on-demand template search. Delivered via Gmail/WhatsApp.",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "report": "node src/index.js",
+    "report:daily": "node src/index.js --mode=daily",
+    "report:search": "node src/index.js --mode=search --query",
+    "test": "node --test src/__tests__/",
+    "setup": "node scripts/setup.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.52.0",
+    "googleapis": "^144.0.0",
+    "nodemailer": "^6.9.0"
+  },
+  "keywords": ["github", "trending", "ai-agents", "daily-report", "claude", "mcp", "skill"],
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
