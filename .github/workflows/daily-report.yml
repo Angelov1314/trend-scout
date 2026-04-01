@@ -2,7 +2,7 @@ name: Daily Trend Report
 
 on:
   schedule:
-    # Run at 8:00 AM UTC daily (adjust to your timezone)
+    # 8:00 AM UTC = 4:00 PM Beijing daily
     - cron: "0 8 * * *"
   workflow_dispatch:
     inputs:
@@ -14,14 +14,19 @@ on:
         options:
           - daily
           - daily+
+          - custom
           - search
           - deep
+      topic:
+        description: "Topic for custom mode (e.g. 'game AI agents', 'MCP finance servers')"
+        required: false
+        type: string
       query:
-        description: "Search query (for search/deep modes)"
+        description: "Query for search/deep modes"
         required: false
         type: string
       sources:
-        description: "Sources for deep mode (comma-separated: tavily,x,linkedin,youtube,hackernews)"
+        description: "Sources for deep mode (tavily,x,linkedin,youtube,hackernews)"
         required: false
         default: "tavily,x,youtube,hackernews"
         type: string
@@ -54,11 +59,13 @@ jobs:
           WHATSAPP_TO: ${{ secrets.WHATSAPP_TO }}
         run: |
           MODE="${{ github.event.inputs.mode || 'daily+' }}"
+          TOPIC="${{ github.event.inputs.topic }}"
           QUERY="${{ github.event.inputs.query }}"
           SOURCES="${{ github.event.inputs.sources }}"
 
           ARGS="--mode=$MODE"
-          [ -n "$QUERY" ] && ARGS="$ARGS --query=\"$QUERY\""
+          [ -n "$TOPIC" ]   && ARGS="$ARGS --topic=$TOPIC"
+          [ -n "$QUERY" ]   && ARGS="$ARGS --query=$QUERY"
           [ -n "$SOURCES" ] && ARGS="$ARGS --sources=$SOURCES"
 
           eval node src/index.js $ARGS
