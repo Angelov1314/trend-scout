@@ -69,10 +69,32 @@ export async function searchYouTube(query, { maxResults = 5 } = {}) {
 }
 
 /**
- * Search HackerNews / tech community discussions.
+ * Search HackerNews via official Algolia API — real-time, structured, free.
+ * Much more accurate than Tavily site: filter.
  */
-export async function searchHackerNews(query, { maxResults = 5 } = {}) {
-  return searchTavily(`${query} site:news.ycombinator.com OR site:lobste.rs`, { maxResults });
+export async function searchHackerNews(query, { maxResults = 5, days = 7 } = {}) {
+  const since = Math.floor((Date.now() - days * 86400000) / 1000);
+  const url = `https://hn.algolia.com/api/v1/search?query=${encodeURIComponent(query)}&tags=story&numericFilters=created_at_i>${since}&hitsPerPage=${maxResults}&attributesToRetrieve=title,url,points,num_comments,created_at,objectID`;
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HN API ${res.status}`);
+    const data = await res.json();
+
+    return {
+      answer: null,
+      results: (data.hits || []).map((h) => ({
+        title: h.title,
+        url: h.url || `https://news.ycombinator.com/item?id=${h.objectID}`,
+        hnUrl: `https://news.ycombinator.com/item?id=${h.objectID}`,
+        snippet: `${h.points} pts · ${h.num_comments} comments`,
+        source: "hackernews",
+      })),
+    };
+  } catch (err) {
+    console.warn(`[search] HN Algolia failed: ${err.message}`);
+    return { answer: null, results: [] };
+  }
 }
 
 /**

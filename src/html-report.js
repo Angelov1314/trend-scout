@@ -148,9 +148,15 @@ export function buildHtmlReport({ trending, aiAgents, releases, featuredRepos, b
       ${buzzResults.flatMap((s) =>
         (s.results || []).slice(0, 3).map((r) => {
           const label = { tavily: "Web", x: "X", hackernews: "HN" }[s.source] || s.source;
+          const meta = s.source === "hackernews" && r.snippet
+            ? `<span style="color:#9ca3af;font-size:11px;margin-left:6px;">${r.snippet}</span>`
+            : "";
+          const link = s.source === "hackernews" && r.hnUrl
+            ? `<a href="${r.hnUrl}" style="color:#9ca3af;font-size:11px;margin-left:4px;">[discuss]</a>`
+            : "";
           return `<li style="margin-bottom:6px;font-size:13px;">
             <span style="background:#f3f4f6;border-radius:4px;padding:1px 5px;font-size:11px;color:#6b7280;margin-right:4px;">${label}</span>
-            <a href="${r.url}" style="color:#4f46e5;text-decoration:none;">${r.title}</a>
+            <a href="${r.url}" style="color:#4f46e5;text-decoration:none;">${r.title}</a>${meta}${link}
           </li>`;
         })
       ).join("")}
